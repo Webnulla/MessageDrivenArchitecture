@@ -10,9 +10,9 @@ namespace RestarauntBooking
 
         public Table(int id)
         {
-            Id = id;
-            State = State.Free;
-            SeatsCount = Random.Next(2, 5);
+            Id = id; //в учебном примере просто присвоим id при вызове
+            State = State.Free; // новый стол всегда свободен
+            SeatsCount = Random.Next(2, 5); //пусть количество мест за каждым столом будет случайным, от 2х до 5ти
         }
 
         public bool SetState(State state)
@@ -20,16 +20,15 @@ namespace RestarauntBooking
             lock (_lock)
             {
                 if (state == State)
-                {
                     return false;
-                }
-
+            
                 State = state;
                 return true;
             }
         }
-
+        
         private readonly object _lock = new object();
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new ();
+        
     }
 }

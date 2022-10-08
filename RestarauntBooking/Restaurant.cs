@@ -8,11 +8,11 @@ namespace RestarauntBooking
 {
     public class Restaurant
     {
-        private readonly List<Table> _tables = new List<Table>();
+        private readonly List<Table> _tables = new ();
 
         public Restaurant()
         {
-            for (int i = 1; i <= 10; i++)
+            for (ushort i = 1; i <= 10; i++)
             {
                 _tables.Add(new Table(i));
             }
@@ -20,12 +20,12 @@ namespace RestarauntBooking
 
         public async Task<bool?> BookFreeTableAsync(int countOfPersons)
         {
-            Console.WriteLine("Спасибо за Ваше обращение, я подберу столик и подтвержу вашу бронь," +
+            Console.WriteLine($"Спасибо за Ваше обращение, я подберу столик и подтвержу вашу бронь," +
                               "Вам придет уведомление");
 
             var table = _tables.FirstOrDefault(t => t.SeatsCount > countOfPersons
                                                     && t.State == State.Free);
-            await Task.Delay(1000 * 5); //у нас нерасторопные менеджеры, 5 секунд они находятся в поисках стола
+            await Task.Delay(100 * 5); //у нас нерасторопные менеджеры, 5 секунд они находятся в поисках стола
             return table?.SetState(State.Booked);
         }
     }
