@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
+using MassTransit.RabbitMqTransport;
 using Messaging;
 using Microsoft.Extensions.Hosting;
 
@@ -10,25 +12,32 @@ namespace RestarauntBooking
     public class Worker : BackgroundService
     {
         private readonly IBus _bus;
-        private readonly Restaurant _restaurant;
-
-        public Worker(IBus bus, Restaurant restaurant)
+        
+        public Worker(IBus bus)
         {
             _bus = bus;
-            _restaurant = restaurant;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {                
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            var s = "Hello world";
+        
+            Console.WriteLine(s[^4] + s[3..5] + s[^8..^6]);
+        
+
+            Console.OutputEncoding = Encoding.UTF8;
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(10000, stoppingToken);
+                await Task.Delay(1000, stoppingToken);
                 Console.WriteLine("Привет! Желаете забронировать столик?");
-                var result = await _restaurant.BookFreeTableAsync(1);
-                //забронируем с ответом по смс
-                await _bus.Publish(new TableBooked(NewId.NextGuid(), NewId.NextGuid(), result ?? false),
-                    context => context.Durable = false, stoppingToken);
+                var b = Guid.NewGuid();
+
+                var dateTime = DateTime.Now;
+
+                var topology = _bus.GetRabbitMqHostTopology();
+            
+                await _bus.Publish(new BookingRequest(b, Guid.NewGuid(), null, dateTime),
+                    stoppingToken);
             }
         }
     }
