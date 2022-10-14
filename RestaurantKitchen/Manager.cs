@@ -6,16 +6,14 @@ namespace RestaurantKitchen
 {
     public class Manager
     {
-        private readonly IBus _bus;
-
-        public Manager(IBus bus)
+        public Manager()
         {
-            _bus = bus;
+            
         }
 
-        public void CheckKitchenReady(Guid orderId, Dish? dish)
+        public bool CheckKitchenReady(Guid orderId, Dish? dish)
         {
-            _bus.Publish<IKitchenReady>(new KitchenReady(orderId, true));
+            return true;
         }
     }
 }

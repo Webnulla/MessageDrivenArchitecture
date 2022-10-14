@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,20 +11,20 @@ namespace RestaurantNotification
     {
         public static void Main(string[] args)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
             CreateHostBuilder(args).Build().Run();
         }
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        private static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddMassTransit(x =>
                     {
-                        x.AddConsumer<NotifierTableBookedConsumer>();
-                        x.AddConsumer<KitchenReadyConsumer>();
-                        
-                        x.UsingRabbitMq((context,cfg) =>
+                        x.AddConsumer<NotifyConsumer>();
+
+                        x.UsingRabbitMq((context, cfg) =>
                         {
                             cfg.UseMessageRetry(r =>
                             {
@@ -34,16 +35,20 @@ namespace RestaurantNotification
                                 r.Ignore<StackOverflowException>();
                                 r.Ignore<ArgumentNullException>(x => x.Message.Contains("Consumer"));
                             });
-                            
-                            
+
+
                             cfg.ConfigureEndpoints(context);
                         });
-                        
-                        
-
                     });
+
                     services.AddSingleton<Notifier>();
-                    services.AddMassTransitHostedService(true);
+                    services.Configure<MassTransitHostOptions>(options =>
+                    {
+                        options.WaitUntilStarted = true;
+                        options.StartTimeout = TimeSpan.FromSeconds(30);
+                        options.StopTimeout = TimeSpan.FromMinutes(1);
+                    });
                 });
+        }
     }
 }

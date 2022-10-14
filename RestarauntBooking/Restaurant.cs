@@ -12,10 +12,7 @@ namespace RestarauntBooking
 
         public Restaurant()
         {
-            for (int i = 1; i <= 10; i++)
-            {
-                _tables.Add(new Table(i));
-            }
+            for (ushort i = 1; i <= 10; i++) _tables.Add(new Table(i));
         }
 
         public async Task<bool?> BookFreeTableAsync(int countOfPersons)
